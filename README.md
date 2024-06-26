@@ -51,8 +51,7 @@
     
               - name: Download and install Composer
                 shell: |
-                  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                  curl -sS https://getcomposer.org/installer | php -- --install-dir=/var/www/html --filename=composer
                 args:
-                  creates: /usr/local/bin/composer  # Ensures Composer is only installed if not already present
+                  creates: /var/www/html/composer  # Ensures Composer is only installed if not already present
 
-          
