@@ -40,3 +40,19 @@
 - **Step5**-> In some use case already php is installed, so just write the playbook to install the composer latest version.
 - **step6**-> Used module is package management, this is to enable you to install any package on a system, but usually these modules can install, upgrade, downgrade, remove, and list packages.
 - **Step7**-> In playbook_composer.yml file, just mentioned in the task path to install the composer as mention path.
+
+          ---
+          - name: Install Composer version 2.7.7
+            hosts: all
+            become: yes
+            gather_facts: false
+
+            tasks:
+    
+              - name: Download and install Composer
+                shell: |
+                  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                args:
+                  creates: /usr/local/bin/composer  # Ensures Composer is only installed if not already present
+
+          
