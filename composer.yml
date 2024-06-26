@@ -1,0 +1,13 @@
+---
+- name: Install Composer on Ubuntu 22.04 
+  hosts: all
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Download and install Composer
+      shell: |
+        curl -sS https://getcomposer.org/installer | php -- --install-dir=/var/www/html --filename=composer
+      args:
+        creates: /var/www/html/composer  # Ensures Composer is only installed if not already present
+
