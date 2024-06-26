@@ -1,0 +1,36 @@
+#This playbook is used to install the php and composer with the default paths
+
+---
+- name: Install Composer on Ubuntu 22.04 with PHP 7.4
+  hosts: all
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Add Ondřej Surý PPA for PHP
+      apt_repository:
+        repo: ppa:ondrej/php
+        state: present
+
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install PHP 7.4 and required extensions
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - php7.4
+        - php7.4-cli
+        - php7.4-common
+        - php7.4-json
+        - php7.4-mbstring
+
+    - name: Download and install Composer
+      shell: |
+        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+      args:
+        creates: /usr/local/bin/composer  # Ensures Composer is only installed if not already present
+
+    
