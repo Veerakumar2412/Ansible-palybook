@@ -1,5 +1,5 @@
 ## Ansible-palybook
-*Ansible-Playbook to inatall the composer*
+*Ansible-Playbook to install the composer*
 
 - **Step1**-> Install the two different virtual machines consider one as a ansible master machine and install the ansible on the specified machine.
 - **Step2**-> In the ansible installed machine add the **inventory.ini** file and mention the host ip,remote user name and  the path of the ssh private key.
