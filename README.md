@@ -38,7 +38,7 @@
                   - php7.4-mbstring
 
 - **Step5**-> In some use case already php is installed, so just write the playbook to install the composer latest version.
-- **step6**-> Used module is package management, this is to enable you to install any package on a system, but usually these modules can install, upgrade, downgrade, remove, and list packages.
+- **step6**-> Used module is package management, this is enable you to install any package on a system, but usually these modules can install, upgrade, downgrade, remove, and list packages.
 - **Step7**-> In playbook_composer.yml file, just mentioned in the task path to install the composer as mention path.
 
           ---
