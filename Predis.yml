@@ -1,0 +1,39 @@
+---
+- name: Install Predis
+  hosts: all
+  remote_user: apache
+  become: true
+  tasks:
+    - name: Ensure Composer is installed
+      apt:
+        name: composer
+        state: present
+
+    - name: Ensure the /usr/local/bin directory exists
+      file:
+        path: /usr/local/bin
+        state: directory
+        owner: apache
+        group: apache
+        mode: '0755'
+
+    - name: Adjust permissions to allow Apache user to write to /usr/local/bin
+      file:
+        path: /usr/local/bin
+        owner: apache
+        group: apache
+        mode: '0755'
+        recurse: yes
+
+    - name: Install Predis as Apache user
+      shell: sudo -u apache composer require predis/predis
+      args:
+        chdir: /usr/local/bin
+
+    - name: Restore proper permissions for /usr/local/bin
+      file:
+        path: /usr/local/bin
+        owner: apache
+        group: apache
+        recurse: yes
+        state: directory
