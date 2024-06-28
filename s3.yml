@@ -1,0 +1,25 @@
+---
+- name: Install Flysystem AWS S3 V3 library via Composer
+  hosts: all
+  become: yes
+  remote_user: apache
+  tasks:
+    - name: Install required PHP modules (if needed)
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - php # Adjust as per your PHP installation requirements
+
+    - name: Install Composer if not already installed
+      remote_user: apache
+      shell: curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
+      args:
+        creates: /usr/local/bin/composer
+
+    - name: Install Flysystem AWS S3 V3 library
+      command:
+        cmd: /usr/local/bin/composer require league/flysystem-aws-s3-v3:~1.0 --ignore-platform-reqs --no-dev --prefer-dist
+        creates: /usr/local/bin/composer.json
+      remote_user: apache
+
