@@ -1,0 +1,4 @@
+php /usr/local/bin/composer require predis/predis
+php /usr/local/bin/composer require doctrine/dbal:2.*
+php /usr/local/bin/composer require pusher/pusher-php-server
+php /usr/local/bin/composer require league/flysystem-aws-s3-v3 ~1.0
