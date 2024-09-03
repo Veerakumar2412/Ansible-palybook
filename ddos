@@ -134,3 +134,57 @@ for conf_file in "$CONFIG_DIR"*.conf; do
     fi
 done
 =======================================================================================
+
+#DDOs half working script here
+
+# Directory where your Apache config files are located
+LOG_FILE="/home/ghtn@golden-hippo.com/Videos/logs"
+DDOS_THRESHOLD=5  # Number of requests to consider as a DDoS threshold
+TIME_FRAME=60     # Time frame in seconds to check for DDoS activity
+
+
+# Check if a search pattern is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <search-pattern>"
+    exit 1
+fi
+
+# Search pattern provided as the first argument
+SEARCH_PATTERN="$1"
+
+# Perform the grep operation
+grep "$SEARCH_PATTERN" "$LOG_FILE"
+
+    if [ -f "$access_log" ]; then
+        # Extract the last X seconds of the access log
+        recent_lines=$(awk -v timeframe="$TIME_FRAME" '{
+            split($4, timestamp, "[/:]")
+            log_time = mktime(timestamp[3] " " timestamp[2] " " timestamp[1] " " timestamp[5] " " timestamp[6] " " timestamp[7])
+            current_time = systime()
+            if (current_time - log_time <= timeframe) {
+                print $0
+            }
+        }' "$access_log")
+
+        # Find IPs that exceeded the threshold
+        repeated_ips=$(echo "$recent_lines" | awk '{print $1}' | sort | uniq -c | sort -nr | awk -v threshold="$DDOS_THRESHOLD" '$1 >= threshold {print $2}')
+
+        if [ ! -z "$repeated_ips" ]; then
+            echo "  Possible DDoS detected for domain: $domain"
+            echo "  Config file: $conf_file"
+            echo "  Access log: $access_log"
+            echo "  Repeated IPs and their corresponding affected domains:"
+            for ip in $repeated_ips; do
+                affected_domains=$(echo "$recent_lines" | awk -v ip="$ip" '$1 == ip {print $7}' | cut -d'/' -f3 | uniq)
+                for adomain in $affected_domains; do
+                    echo "$ip $adomain"
+                done
+            done
+            echo
+        fi
+    else
+        echo
+        echo "No access log found for this domain: $domain. Skipping..."
+        echo
+    fi
+===========================================================================
