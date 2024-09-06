@@ -59,3 +59,36 @@ fi
    #     echo "$ip"
    # done
 #fi
+======================================
+
+
+#!/bin/bash
+
+# Log file location
+LOG_FILE="/path/to/apache/access.log"
+
+# Time window in minutes (e.g., last 5 minutes)
+TIME_WINDOW=5
+
+# Get the current time
+CURRENT_TIME=$(date +%d/%b/%Y:%H:%M:%S)
+
+# Get the time window (5 minutes ago)
+TIME_WINDOW_START=$(date -d "$TIME_WINDOW minutes ago" +%d/%b/%Y:%H:%M:%S)
+
+echo "Analyzing Apache log from $TIME_WINDOW_START to $CURRENT_TIME..."
+
+# Extract POST and GET requests within the time window
+echo "POST requests count:"
+grep "$TIME_WINDOW_START" -A1000 "$LOG_FILE" | grep "$CURRENT_TIME" | grep 'POST' | wc -l
+
+echo "GET requests count:"
+grep "$TIME_WINDOW_START" -A1000 "$LOG_FILE" | grep "$CURRENT_TIME" | grep 'GET' | wc -l
+
+# Top IPs making POST/GET requests (could indicate a potential source of attack)
+echo "Top IPs making POST requests:"
+grep "$TIME_WINDOW_START" -A1000 "$LOG_FILE" | grep "$CURRENT_TIME" | grep 'POST' | awk '{print $1}' | sort | uniq -c | sort -nr | head
+
+echo "Top IPs making GET requests:"
+grep "$TIME_WINDOW_START" -A1000 "$LOG_FILE" | grep "$CURRENT_TIME" | grep 'GET' | awk '{print $1}' | sort | uniq -c | sort -nr | head
+
