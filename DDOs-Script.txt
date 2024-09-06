@@ -1,0 +1,61 @@
+#!/bin/bash
+#set -x  # Enable debugging output
+# Define variables
+LOG_FILE="/var/log/apache2/access.log"
+DDOS_THRESHOLD=50  # Number of requests to consider as a DDoS threshold
+TIME_FRAME=60     # Time frame in seconds (e.g., 600 seconds = 10 minutes)
+#TIMESTAMP="05/Sep/2024:07:50"
+CURRENT_DATE=$(date +"%d/%b/%Y")
+
+# Check if the log file exists
+if [ ! -f "$LOG_FILE" ]; then
+    echo "Log file not found: $LOG_FILE"
+    exit 1
+fi
+
+# Define the timestamp you want to filter logs by (example timestamp)
+TIMESTAMP="05/Sep/2024:07:50"
+
+#filtered_logs=$(grep "05/sep/2024:07:50" /var/log/apache2/access.log)
+#echo "$filtered_logs"
+
+filtered_logs=$(date +"%d/%b/%Y:%H:%M" /var/log/apache2/access.log)
+grep "$CURRENT_TIMESTAMP" "$LOG_FILE"
+
+
+# Extract log entries from the specified timestamp and within the timeframe
+recent_lines=$(awk -v timestamp="$TIMESTAMP" -v timeframe="$TIME_FRAME" '
+    BEGIN {
+        split(timestamp, t, "[:/ ]")
+        target_time = mktime(t[3] " " t[2] " " t[1] " " t[4] " " t[5] " " t[6])
+    }
+    {
+        split($4, log_t, "[/:]")
+        log_time = mktime(log_t[3] " " log_t[2] " " log_t[1] " " log_t[5] " " log_t[6] " " log_t[7])
+        if (target_time - log_time <= timeframe && target_time - log_time >= 0) {
+            print $0
+        }
+    }
+' "$LOG_FILE")
+repeated_ips=$(grep "$CURRENT_DATE" "$LOG_FILE" | awk '{print $1}' | sort | uniq -c | sort -nr | awk -v threshold="$THRESHOLD" '$1 >= threshold {print $2}')
+
+if [ -z "$repeated_ips" ]; then
+    echo "No IPs exceeded the threshold for today. No repeated IPs detected."
+else
+    echo "Repeated IPs for $CURRENT_DATE (appeared $THRESHOLD or more times):"
+    for ip in $repeated_ips; do
+        echo "$ip"
+    done
+fi
+
+# Extract IP addresses, count occurrences, and filter based on the threshold
+#repeated_ips=$(awk '{print $1}' "$LOG_FILE" | sort | uniq -c | sort -nr | awk -v threshold="$THRESHOLD" '$1 >= threshold {print $2}')
+
+#if [ -z "$repeated_ips" ]; then
+ #   echo "No IPs exceeded the threshold. No repeated IPs detected."
+#else
+ #   echo "Repeated IPs (appeared $THRESHOLD or more times):"
+  #  for ip in $repeated_ips; do
+   #     echo "$ip"
+   # done
+#fi
